@@ -12,19 +12,15 @@ class AppDrawer extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
-    // Active color for the switch (when it's ON - i.e., Dark Mode selected)
-    // This should be your app's primary accent, e.g., theme.primaryColor or a specific teal.
-    final Color activeSwitchColor = theme.primaryColor;
+    // Active color for the switch (when ON).
+    // colorScheme.secondary is seafoamGreenAccent in light theme, seafoamGreenPrimary in dark.
+    final Color activeSwitchColor = colorScheme.secondary;
 
-    // Colors for the INACTIVE state of the switch (when it's OFF - i.e., Light Mode selected)
-    // We want these to be visible on a light background.
-    final Color inactiveSwitchTrackColorLight = Colors.grey[400]!; // A more visible grey for the track
-    final Color inactiveSwitchThumbColorLight = Colors.grey[600]!; // A slightly darker grey for the thumb
-
-    // For Dark Mode, the default inactive colors are usually fine, but you can specify if needed.
-    // final Color inactiveSwitchTrackColorDark = Colors.grey[700]!;
-    // final Color inactiveSwitchThumbColorDark = Colors.grey[500]!;
+    // Colors for the INACTIVE state of the switch (when OFF - Light Mode selected)
+    final Color inactiveSwitchTrackColorLight = Colors.grey[350]!;
+    final Color inactiveSwitchThumbColorLight = Colors.grey[500]!;
 
 
     return Drawer(
@@ -33,7 +29,7 @@ class AppDrawer extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: theme.primaryColor,
+              color: theme.primaryColor, // This will be seafoamGreenPrimary (0xFF8DDCDC) in light theme
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +38,7 @@ class AppDrawer extends StatelessWidget {
                 Text(
                   AppConstants.appTitle,
                   style: TextStyle(
-                    color: theme.appBarTheme.foregroundColor ?? Colors.white,
+                    color: colorScheme.onPrimary, // Should be darkTextOnSeafoam
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -80,22 +76,20 @@ class AppDrawer extends StatelessWidget {
             onChanged: (bool value) {
               themeProvider.toggleTheme(value);
             },
-            activeColor: activeSwitchColor, // Color when ON (Dark Mode)
-            // activeTrackColor: activeSwitchColor.withOpacity(0.6), // Optional: slightly lighter track when ON
+            activeColor: activeSwitchColor,
 
-            // Explicitly set inactive colors for better visibility in Light Mode
             inactiveTrackColor: isDarkMode
-                ? null // Use default dark theme inactive track or specify dark inactive track color
+                ? null
                 : inactiveSwitchTrackColorLight,
             inactiveThumbColor: isDarkMode
-                ? null // Use default dark theme inactive thumb or specify dark inactive thumb color
+                ? null
                 : inactiveSwitchThumbColorLight,
 
             secondary: Icon(
               isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
               color: isDarkMode
-                  ? theme.colorScheme.secondary // Moon icon color in Dark Mode
-                  : activeSwitchColor,       // Sun icon color in Light Mode (matches the active switch color)
+                  ? activeSwitchColor // Moon icon color in Dark Mode (e.g., seafoamGreenPrimary for dark theme accent)
+                  : theme.primaryColor, // Sun icon uses the main primary color (0xFF8DDCDC)
             ),
           ),
         ],

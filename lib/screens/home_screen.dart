@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double? _monthlyDividend;
   double? _totalDividend;
+  bool _showDetails = false; // To control visibility of the detailed breakdown
 
   final NumberFormat _currencyFormatter =
       NumberFormat.currency(locale: 'en_MY', symbol: 'RM ', decimalDigits: 2);
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final double investedAmount =
           double.tryParse(_investedAmountController.text) ?? 0.0;
       final double annualRate =
-          (double.tryParse(_annualRateController.text) ?? 0.0) / 100.0; // Convert % to decimal
+          (double.tryParse(_annualRateController.text) ?? 0.0) / 100.0;
       final int months = int.tryParse(_monthsController.text) ?? 0;
 
       if (investedAmount > 0 && annualRate > 0 && months > 0) {
@@ -50,11 +51,11 @@ class _HomeScreenState extends State<HomeScreen> {
           _monthlyDividend = null;
           _totalDividend = null;
         });
-        // show a snackbar for invalid calculation parameters
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Please enter valid positive values for calculation.'),
-            backgroundColor: Theme.of(context).colorScheme.error, // Use theme error color
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -69,22 +70,22 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _monthlyDividend = null;
       _totalDividend = null;
+      _showDetails = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get theme data for easy access to themed colors and styles
     final ThemeData theme = Theme.of(context);
     final TextTheme textTheme = theme.textTheme;
     final ColorScheme colorScheme = theme.colorScheme;
 
+    final TextStyle titleLargeStyle = textTheme.titleLarge ?? const TextStyle(fontSize: 22, fontWeight: FontWeight.bold);
+    final TextStyle labelLargeStyle = textTheme.labelLarge ?? const TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConstants.appTitle),
-        // AppBar styling is now primarily handled by AppBarTheme in main.dart
-        // backgroundColor: theme.primaryColor, // This is okay, or let AppBarTheme handle it
-        // foregroundColor: theme.appBarTheme.foregroundColor, // This is okay, or let AppBarTheme handle it
       ),
       drawer: const AppDrawer(),
       body: SingleChildScrollView(
@@ -96,14 +97,14 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               Text(
                 'Enter Investment Details',
-                style: textTheme.titleLarge?.copyWith(
+                style: titleLargeStyle.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.primaryColorDark, // Adapts based on theme
+                  color: theme.primaryColorDark,
                 ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
-                context: context, // Pass context for theme access
+                context: context,
                 controller: _investedAmountController,
                 labelText: 'Invested Fund Amount (RM)',
                 icon: Icons.attach_money,
@@ -112,12 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter invested amount';
-                  }
-                  if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                    return 'Please enter a valid positive amount';
-                  }
+                  if (value == null || value.isEmpty) { return 'Please enter invested amount'; }
+                  if (double.tryParse(value) == null || double.parse(value) <= 0) { return 'Please enter a valid positive amount';}
                   return null;
                 },
               ),
@@ -132,12 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter annual rate';
-                  }
-                   if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                    return 'Please enter a valid positive rate';
-                  }
+                  if (value == null || value.isEmpty) { return 'Please enter annual rate'; }
+                  if (double.tryParse(value) == null || double.parse(value) <= 0) { return 'Please enter a valid positive rate'; }
                   return null;
                 },
               ),
@@ -150,16 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter number of months';
-                  }
+                  if (value == null || value.isEmpty) { return 'Please enter number of months'; }
                   final int? months = int.tryParse(value);
-                  if (months == null || months <= 0) {
-                    return 'Please enter a valid positive number of months';
-                  }
-                  if (months > 12) {
-                    return 'Months cannot exceed 12';
-                  }
+                  if (months == null || months <= 0) { return 'Please enter a valid positive number of months'; }
+                  if (months > 12) { return 'Months cannot exceed 12'; }
                   return null;
                 },
               ),
@@ -172,11 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: const Icon(Icons.clear_all),
                       onPressed: _resetForm,
                       style: ElevatedButton.styleFrom(
-                        // Use a less prominent color for Reset, or a color from the scheme
-                        backgroundColor: colorScheme.surfaceVariant, // Adapts
-                        foregroundColor: colorScheme.onSurfaceVariant, // Adapts
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        textStyle: textTheme.labelLarge?.copyWith(fontSize: 16),
+                        backgroundColor: colorScheme.surfaceVariant,
+                        foregroundColor: colorScheme.onSurfaceVariant,
+                        textStyle: labelLargeStyle,
                       ),
                       label: const Text('Reset'),
                     ),
@@ -187,11 +172,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: const Icon(Icons.calculate),
                       onPressed: _calculateDividend,
                       style: ElevatedButton.styleFrom(
-                        // ElevatedButtonTheme in main.dart handles this, but can override
-                        backgroundColor: theme.primaryColor, // Adapts
-                        foregroundColor: textTheme.labelLarge?.color, // Adapts, e.g. colorScheme.onPrimary
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        textStyle: textTheme.labelLarge?.copyWith(fontSize: 16),
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: colorScheme.onPrimary,
+                        textStyle: labelLargeStyle,
                       ),
                       label: const Text('Calculate'),
                     ),
@@ -199,7 +182,59 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 30),
-              if (_totalDividend != null) _buildResultsCard(context), // Pass context for theme access
+
+              if (_totalDividend != null) ...[
+                _buildResultsSummaryCard(context),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        side: BorderSide(color: theme.primaryColorDark.withOpacity(0.4))
+                      )
+                    ),
+                    icon: Icon(
+                      _showDetails ? Icons.expand_less : Icons.expand_more,
+                      color: theme.primaryColorDark,
+                      size: 20,
+                    ),
+                    label: Text(
+                      _showDetails ? 'Hide Details' : 'Show Details',
+                      style: labelLargeStyle.copyWith(
+                        color: theme.primaryColorDark,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _showDetails = !_showDetails;
+                      });
+                    },
+                  ),
+                ),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      axisAlignment: -1.0,
+                      child: child,
+                    );
+                  },
+                  child: _showDetails
+                      ? Column(
+                          key: const ValueKey<bool>(true),
+                          children: [
+                            const SizedBox(height: 16),
+                            _buildDetailedBreakdownSection(context),
+                          ],
+                        )
+                      : const SizedBox.shrink(key: ValueKey<bool>(false)),
+                ),
+              ],
             ],
           ),
         ),
@@ -208,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTextField({
-    required BuildContext context, // Pass context for theme access
+    required BuildContext context,
     required TextEditingController controller,
     required String labelText,
     required IconData icon,
@@ -216,28 +251,27 @@ class _HomeScreenState extends State<HomeScreen> {
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
-    // InputDecorationTheme in main.dart handles most styling for borders, fill, prefixIconColor
+    final ThemeData theme = Theme.of(context);
+    final TextStyle titleMediumStyle = theme.textTheme.titleMedium ?? const TextStyle(fontSize: 16);
+
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
-        // prefixIconColor is now handled by InputDecorationTheme in main.dart
         prefixIcon: Icon(icon),
-        // filled and fillColor are also handled by InputDecorationTheme
       ),
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator,
-      // Use themed text style for input
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16),
+      style: titleMediumStyle,
     );
   }
 
-  Widget _buildResultsCard(BuildContext context) { // Pass context for theme access
+  Widget _buildResultsSummaryCard(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final TextTheme textTheme = theme.textTheme;
+    final TextStyle titleLargeStyle = textTheme.titleLarge ?? const TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
-    // CardTheme in main.dart handles elevation, shape, margin, and its background color
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -246,9 +280,9 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               'Calculation Results:',
-              style: textTheme.titleLarge?.copyWith(
+              style: titleLargeStyle.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.primaryColor, // Adapts
+                color: theme.primaryColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -262,29 +296,127 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildResultRow(BuildContext context, String label, String value, {bool isTotal = false}) { // Pass context for theme access
+  Widget _buildResultRow(BuildContext context, String label, String value, {bool isTotal = false}) {
     final ThemeData theme = Theme.of(context);
     final TextTheme textTheme = theme.textTheme;
+    final TextStyle bodyLargeStyle = textTheme.bodyLarge ?? const TextStyle(fontSize: 16);
+    final TextStyle bodyMediumStyle = textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
+    final TextStyle titleMediumStyle = textTheme.titleMedium ?? const TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: textTheme.bodyLarge?.copyWith( // Use textTheme
-              color: textTheme.bodyMedium?.color?.withOpacity(0.8), // Adapts, slightly dimmer
+            style: bodyLargeStyle.copyWith(
+              color: bodyMediumStyle.color?.withOpacity(0.85),
             ),
           ),
           Text(
             value,
-            style: (isTotal ? textTheme.titleMedium : textTheme.bodyLarge)?.copyWith( // Use textTheme
+            style: (isTotal ? titleMediumStyle : bodyLargeStyle).copyWith(
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? theme.primaryColorDark : textTheme.bodyLarge?.color, // Adapts
+              color: isTotal ? theme.primaryColorDark : bodyLargeStyle.color,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper widget for creating consistently formatted detail rows
+  Widget _buildDetailRow(BuildContext context, String label, String value, {bool isFormula = false, bool isSubValue = false}) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    // Fallback text styles
+    final TextStyle defaultBodyMedium = textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
+    final TextStyle defaultBodySmall = textTheme.bodySmall ?? const TextStyle(fontSize: 12);
+
+    final TextStyle labelStyle = (isFormula ? defaultBodySmall : defaultBodyMedium).copyWith(
+      fontStyle: isFormula ? FontStyle.italic : FontStyle.normal,
+      color: isFormula ? (defaultBodySmall.color?.withOpacity(0.8) ?? Colors.grey[600]) : defaultBodyMedium.color,
+    );
+    final TextStyle valueStyle = defaultBodyMedium;
+
+    return Padding(
+      padding: EdgeInsets.only(
+          left: isSubValue ? 24.0 : 8.0, // Indent sub-values (calculation lines)
+          top: isSubValue ? 2.0 : 4.0,
+          bottom: isSubValue ? 2.0 : 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isSubValue && label.isNotEmpty)
+            SizedBox(
+              width: 150, // Consistent width for primary labels
+              child: Text(label, style: labelStyle),
+            ),
+          if (!isSubValue && label.isNotEmpty) const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              // If it's a sub-value (like the formula with numbers) and has a "label" (which is actually the formula string here),
+              // then concatenate. Otherwise, just show the value.
+              isSubValue && label.isNotEmpty ? label + value : value,
+              style: isSubValue ? valueStyle.copyWith(fontWeight: FontWeight.w500) : valueStyle,
+              textAlign: TextAlign.start,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailedBreakdownSection(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+
+    // Fallback text styles
+    final TextStyle sectionTitleStyle = textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.primaryColorDark) ?? const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    final TextStyle subHeadingStyle = textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold) ?? textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 13) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold);
+
+    final double investedAmount = double.tryParse(_investedAmountController.text) ?? 0.0;
+    final double annualRatePercent = double.tryParse(_annualRateController.text) ?? 0.0;
+    final int months = int.tryParse(_monthsController.text) ?? 0;
+
+    if (_monthlyDividend == null || _totalDividend == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      elevation: 2,
+      color: theme.cardTheme.color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        side: BorderSide(color: theme.dividerColor.withOpacity(0.5))
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Calculation Breakdown:',
+              style: sectionTitleStyle,
+            ),
+            const SizedBox(height: 16),
+
+            Text('Inputs Used:', style: subHeadingStyle),
+            _buildDetailRow(context, 'Invested Amount:', _currencyFormatter.format(investedAmount)),
+            _buildDetailRow(context, 'Annual Dividend Rate:', '$annualRatePercent%'),
+            _buildDetailRow(context, 'Number of Months:', '$months'),
+            const SizedBox(height: 16), // Increased spacing
+
+            Text('Monthly Dividend Formula:', style: subHeadingStyle),
+            _buildDetailRow(context, '', '(Rate / 12) × Invested Fund', isFormula: true),
+            _buildDetailRow(context, '', '($annualRatePercent% / 12) × ${_currencyFormatter.format(investedAmount)} = ${_currencyFormatter.format(_monthlyDividend!)}', isSubValue: true),
+            const SizedBox(height: 16), // Increased spacing
+
+            Text('Total Dividend Formula:', style: subHeadingStyle),
+            _buildDetailRow(context, '', 'Monthly Dividend × Number of Months', isFormula: true),
+            _buildDetailRow(context, '', '${_currencyFormatter.format(_monthlyDividend!)} × $months = ${_currencyFormatter.format(_totalDividend!)}', isSubValue: true),
+          ],
+        ),
       ),
     );
   }
