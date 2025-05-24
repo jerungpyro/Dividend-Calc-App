@@ -111,5 +111,4 @@ A mobile application built with Flutter to calculate dividends from unit trust i
 
 ## License
 
-This project is licensed under the [Your Chosen License - e.g., MIT License]. See the `LICENSE` file for details.
-*(If you haven't chosen a license, MIT is a common and permissive one. Create a `LICENSE` file in your root directory with the license text.)*
+This project is licensed under the [UiTM EDUCATIONAL LICENSE]. See the `LICENSE` file for details.
