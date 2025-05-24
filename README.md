@@ -99,7 +99,7 @@ A mobile application built with Flutter to calculate dividends from unit trust i
 *   Saving calculation history.
 *   User accounts for personalized data.
 *   Advanced charting for dividend progression.
-*   *(This section can be updated if/when you add Firebase or other features)*
+*   *Potential use of flutter to make this app more user oriented, make user preferential saves to cloud*
 
 ## Author Information
 
