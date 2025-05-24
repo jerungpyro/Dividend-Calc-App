@@ -32,18 +32,23 @@ A mobile application built with Flutter to calculate dividends from unit trust i
 *(It's highly recommended to add screenshots here to showcase your app's UI)*
 
 *   **Home Screen (Input):**
+*   
     ![image](https://github.com/user-attachments/assets/29bbd10c-1a8c-4efc-aafd-b937e75fe9d1)
 
 *   **Home Screen (Results Summary):**
+*   
     ![image](https://github.com/user-attachments/assets/c8ef2342-3037-462f-a5d0-ba228bb2b33d)
 
 *   **Home Screen (Detailed Breakdown Shown):**
+*   
     ![image](https://github.com/user-attachments/assets/ef7f26ed-2473-414c-a1b8-6924632ce2d4)
 
 *   **Navigation Drawer (with Theme Toggle):**
+*   
     ![image](https://github.com/user-attachments/assets/c3729771-ca74-40a6-8054-ab02c1489890)
 
 *   **About Page:**
+*   
     ![image](https://github.com/user-attachments/assets/649e5cbd-1497-48aa-a755-4a23fd8ecc81)
 
 
