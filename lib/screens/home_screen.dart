@@ -52,7 +52,10 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         // show a snackbar for invalid calculation parameters
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter valid positive values for calculation.')),
+          SnackBar(
+            content: const Text('Please enter valid positive values for calculation.'),
+            backgroundColor: Theme.of(context).colorScheme.error, // Use theme error color
+          ),
         );
       }
     }
@@ -71,11 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get theme data for easy access to themed colors and styles
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConstants.appTitle),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white, // For title and icons
+        // AppBar styling is now primarily handled by AppBarTheme in main.dart
+        // backgroundColor: theme.primaryColor, // This is okay, or let AppBarTheme handle it
+        // foregroundColor: theme.appBarTheme.foregroundColor, // This is okay, or let AppBarTheme handle it
       ),
       drawer: const AppDrawer(),
       body: SingleChildScrollView(
@@ -87,13 +96,14 @@ class _HomeScreenState extends State<HomeScreen> {
             children: <Widget>[
               Text(
                 'Enter Investment Details',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColorDark
+                  color: theme.primaryColorDark, // Adapts based on theme
                 ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
+                context: context, // Pass context for theme access
                 controller: _investedAmountController,
                 labelText: 'Invested Fund Amount (RM)',
                 icon: Icons.attach_money,
@@ -113,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(
+                context: context,
                 controller: _annualRateController,
                 labelText: 'Annual Dividend Rate (%)',
                 icon: Icons.percent,
@@ -132,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 16),
               _buildTextField(
+                context: context,
                 controller: _monthsController,
                 labelText: 'Number of Months Invested',
                 icon: Icons.calendar_today,
@@ -160,10 +172,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: const Icon(Icons.clear_all),
                       onPressed: _resetForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[700],
-                        foregroundColor: Colors.white,
+                        // Use a less prominent color for Reset, or a color from the scheme
+                        backgroundColor: colorScheme.surfaceVariant, // Adapts
+                        foregroundColor: colorScheme.onSurfaceVariant, // Adapts
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        textStyle: const TextStyle(fontSize: 16),
+                        textStyle: textTheme.labelLarge?.copyWith(fontSize: 16),
                       ),
                       label: const Text('Reset'),
                     ),
@@ -174,10 +187,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: const Icon(Icons.calculate),
                       onPressed: _calculateDividend,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
+                        // ElevatedButtonTheme in main.dart handles this, but can override
+                        backgroundColor: theme.primaryColor, // Adapts
+                        foregroundColor: textTheme.labelLarge?.color, // Adapts, e.g. colorScheme.onPrimary
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        textStyle: const TextStyle(fontSize: 16),
+                        textStyle: textTheme.labelLarge?.copyWith(fontSize: 16),
                       ),
                       label: const Text('Calculate'),
                     ),
@@ -185,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 30),
-              if (_totalDividend != null) _buildResultsCard(),
+              if (_totalDividend != null) _buildResultsCard(context), // Pass context for theme access
             ],
           ),
         ),
@@ -194,6 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTextField({
+    required BuildContext context, // Pass context for theme access
     required TextEditingController controller,
     required String labelText,
     required IconData icon,
@@ -201,28 +216,29 @@ class _HomeScreenState extends State<HomeScreen> {
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
+    // InputDecorationTheme in main.dart handles most styling for borders, fill, prefixIconColor
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
-        prefixIcon: Icon(icon, color: Theme.of(context).primaryColorDark),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        filled: true,
-        fillColor: Colors.grey[100],
+        // prefixIconColor is now handled by InputDecorationTheme in main.dart
+        prefixIcon: Icon(icon),
+        // filled and fillColor are also handled by InputDecorationTheme
       ),
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator,
-      style: const TextStyle(fontSize: 16),
+      // Use themed text style for input
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16),
     );
   }
 
-  Widget _buildResultsCard() {
+  Widget _buildResultsCard(BuildContext context) { // Pass context for theme access
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+
+    // CardTheme in main.dart handles elevation, shape, margin, and its background color
     return Card(
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -230,23 +246,26 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               'Calculation Results:',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+                color: theme.primaryColor, // Adapts
               ),
             ),
             const SizedBox(height: 12),
             if (_monthlyDividend != null)
-              _buildResultRow('Monthly Dividend:', _currencyFormatter.format(_monthlyDividend!)),
+              _buildResultRow(context, 'Monthly Dividend:', _currencyFormatter.format(_monthlyDividend!)),
             if (_totalDividend != null)
-              _buildResultRow('Total Dividend (for ${_monthsController.text} months):', _currencyFormatter.format(_totalDividend!), isTotal: true),
+              _buildResultRow(context, 'Total Dividend (for ${_monthsController.text} months):', _currencyFormatter.format(_totalDividend!), isTotal: true),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResultRow(String label, String value, {bool isTotal = false}) {
+  Widget _buildResultRow(BuildContext context, String label, String value, {bool isTotal = false}) { // Pass context for theme access
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -254,17 +273,15 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[700],
+            style: textTheme.bodyLarge?.copyWith( // Use textTheme
+              color: textTheme.bodyMedium?.color?.withOpacity(0.8), // Adapts, slightly dimmer
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: isTotal ? 18 : 16,
+            style: (isTotal ? textTheme.titleMedium : textTheme.bodyLarge)?.copyWith( // Use textTheme
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Theme.of(context).primaryColorDark : Colors.black87,
+              color: isTotal ? theme.primaryColorDark : textTheme.bodyLarge?.color, // Adapts
             ),
           ),
         ],

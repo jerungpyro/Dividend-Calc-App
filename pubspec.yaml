@@ -1,0 +1,27 @@
+name: unit_trust_calculator
+description: A mobile application to calculate unit trust dividends.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0' # Make sure this matches your Dart SDK version from `flutter --version`
+
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.18.1
+  url_launcher: ^6.1.14
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.5               # For state management
+  shared_preferences: ^2.2.2     # For saving theme preference
+  font_awesome_flutter: ^10.7.0  # <-- ADDED THIS LINE for social media icons
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1 # Updated to a more recent version, check pub.dev for latest
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/ # Make sure this folder exists and has your app_icon.png
+    # - assets/images/app_icon.png # Example if you want to be more specific
