@@ -103,9 +103,9 @@ A mobile application built with Flutter to calculate dividends from unit trust i
 
 ## Author Information
 
-*   **Name:** [BADRUL MUHAMMAD AKASYAH BIN BADRUL HISHAM]
-*   **Matric No:** [2023131279]
-*   **Course:** [CS2515A]
+*   **NAME:** []
+*   **Matric No:** []
+*   **Course:** []
 
 *(Make sure these details are consistent with your `AppConstants` file and About page.)*
 
